@@ -110,7 +110,7 @@ VALUES (
   '+91 9517690666',
   '919517690666',
   'info@pratishesh.com',
-  'Lucknow, Uttar Pradesh, India',
+  'KBC-22 The Businees Arcade Complex, Barabirwa Rd, Sector B, Bargawan, Alambagh, Lucknow, Uttar Pradesh 226012',
   'Technology Solutions, Legal & Compliance, Industrial Training, and Job Placement — empowering businesses across India.'
 ) ON CONFLICT (id) DO NOTHING;
 

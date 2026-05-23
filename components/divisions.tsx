@@ -27,7 +27,7 @@ const divisions = [
     color: "bg-primary/10 text-primary",
     borderColor: "hover:border-primary/40",
     href: "/training",
-    services: ["Flask Development", "HR & Office Management", "Tally & Accounting", "Python", "Java", "O Level"],
+    services: ["Flask Development", "HR & Office Management", "Tally & Accounting", "Python", "Java"],
   },
   {
     icon: Briefcase,

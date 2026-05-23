@@ -13,7 +13,7 @@ import DivisionContact from "@/components/division/division-contact"
 export const metadata: Metadata = {
   title: "Industrial Training & Skill Development - Pratishesh Associate & Consultancy",
   description:
-    "Job-ready courses in Flask, Python, Java, Tally, HR, O Level and practical learning programs. From beginner to professional.",
+    "Job-ready courses in Flask, Python, Java, Tally, HR. From beginner to professional.",
 }
 
 const processSteps = [
@@ -43,12 +43,12 @@ const faqs = [
   {
     question: "What are the course durations?",
     answer:
-      "Course durations vary: Flask Development (3-4 months), Python/Java (2-3 months), Tally (1-2 months), HR & Office Management (2-3 months), O Level (varies by NIELIT schedule). Contact us for detailed schedules.",
+      "Course durations vary: Flask Development (3-4 months), Python/Java (2-3 months), Tally (1-2 months), HR & Office Management (2-3 months). Contact us for detailed schedules.",
   },
   {
     question: "Do you provide certificates after training?",
     answer:
-      "Yes, we provide certificates upon successful completion of each course. For O Level, you receive the NIELIT government certificate after clearing the exam.",
+      "Yes, we provide certificates upon successful completion of each course. Certification details vary by program and assessment requirements."
   },
   {
     question: "Is prior experience required?",

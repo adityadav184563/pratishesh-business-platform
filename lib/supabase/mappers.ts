@@ -166,15 +166,6 @@ export function mapSettings(row: SiteSettingsRow): SiteSettings {
   }
 }
 
-import {
-  DEFAULT_PHONE,
-  DEFAULT_WHATSAPP,
-  DEFAULT_EMAIL,
-  DEFAULT_ADDRESS,
-  DEFAULT_COMPANY_NAME,
-  DEFAULT_FOOTER_TEXT,
-} from "@/lib/defaultSettings"
-
 export const DEFAULT_SETTINGS: SiteSettings = {
   companyName: DEFAULT_COMPANY_NAME,
   phone: DEFAULT_PHONE,
