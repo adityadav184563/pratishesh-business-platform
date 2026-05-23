@@ -1,13 +1,19 @@
 "use client"
 
 import { Phone } from "lucide-react"
+import { useSiteSettings } from "@/components/public/SiteSettingsDisplay"
+import { getWhatsAppUrl, getPhoneUrl } from "@/lib/defaultSettings"
 
 export default function FloatingButtons() {
+  const settings = useSiteSettings()
+  const whatsappUrl = getWhatsAppUrl(settings.whatsapp)
+  const phoneUrl = getPhoneUrl(settings.phone)
+
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
       {/* WhatsApp Button */}
       <a
-        href="https://wa.me/91XXXXXXXXXX"
+        href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
         className="flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-transform hover:scale-110"
@@ -20,7 +26,7 @@ export default function FloatingButtons() {
 
       {/* Phone Call Button */}
       <a
-        href="tel:+91XXXXXXXXXX"
+        href={phoneUrl}
         className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-110"
         aria-label="Call us"
       >

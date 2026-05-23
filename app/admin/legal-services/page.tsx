@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Pencil, Plus, Trash2 } from "lucide-react"
 import AdminLayout from "@/components/admin/AdminLayout"
 import DataTable from "@/components/admin/DataTable"
@@ -8,7 +8,12 @@ import FormField from "@/components/admin/FormField"
 import FormModal from "@/components/admin/FormModal"
 import StatusBadge from "@/components/admin/StatusBadge"
 import { useAdminDataRefresh } from "@/hooks/use-admin-data"
-import { getLegalServices, saveLegalServices, uid } from "@/lib/adminData"
+import {
+  createLegalServiceAdmin,
+  deleteLegalServiceAdmin,
+  fetchLegalServicesAdmin,
+  updateLegalServiceAdmin,
+} from "@/lib/api-client"
 import { ICON_OPTIONS } from "@/lib/iconMap"
 import type { LegalService } from "@/lib/types/admin"
 
@@ -23,47 +28,39 @@ const empty: Omit<LegalService, "id"> = {
 
 export default function AdminLegalServicesPage() {
   const tick = useAdminDataRefresh()
-  const [items, setItems] = useState<LegalService[]>(() => getLegalServices())
+  const [items, setItems] = useState<LegalService[]>([])
+  const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<LegalService | null>(null)
   const [form, setForm] = useState(empty)
+  const [saving, setSaving] = useState(false)
 
-  useEffect(() => setItems(getLegalServices()), [tick])
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      setItems(await fetchLegalServicesAdmin())
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
-  const openAdd = () => {
-    setEditing(null)
-    setForm({ ...empty, order: items.length + 1 })
-    setModalOpen(true)
-  }
+  useEffect(() => {
+    load()
+  }, [load, tick])
 
-  const openEdit = (item: LegalService) => {
-    setEditing(item)
-    setForm({
-      title: item.title,
-      description: item.description,
-      icon: item.icon,
-      category: item.category,
-      status: item.status,
-      order: item.order,
-    })
-    setModalOpen(true)
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const next = editing
-      ? items.map((i) => (i.id === editing.id ? { ...editing, ...form } : i))
-      : [...items, { id: uid(), ...form }]
-    saveLegalServices(next)
-    setItems(next)
-    setModalOpen(false)
-  }
-
-  const handleDelete = (id: string) => {
-    if (!confirm("Delete this legal service?")) return
-    const next = items.filter((i) => i.id !== id)
-    saveLegalServices(next)
-    setItems(next)
+    setSaving(true)
+    try {
+      if (editing) await updateLegalServiceAdmin(editing.id, form)
+      else await createLegalServiceAdmin(form)
+      setModalOpen(false)
+      await load()
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to save")
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -71,28 +68,29 @@ export default function AdminLegalServicesPage() {
       title="Legal Services"
       subtitle="Manage legal & compliance services"
       action={
-        <button type="button" onClick={openAdd} className="inline-flex items-center gap-2 rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600">
-          <Plus className="h-4 w-4" />
-          Add Service
+        <button type="button" onClick={() => { setEditing(null); setForm({ ...empty, order: items.length + 1 }); setModalOpen(true) }} className="inline-flex items-center gap-2 rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600">
+          <Plus className="h-4 w-4" /> Add Service
         </button>
       }
     >
-      <DataTable
-        data={[...items].sort((a, b) => a.order - b.order)}
-        columns={[
-          { key: "order", label: "Order" },
-          { key: "title", label: "Title" },
-          { key: "category", label: "Category" },
-          { key: "status", label: "Status", render: (row) => <StatusBadge status={row.status} /> },
-        ]}
-        actions={(row) => (
-          <div className="flex gap-2">
-            <button type="button" onClick={() => openEdit(row)} className="rounded p-1 hover:text-orange-600"><Pencil className="h-4 w-4" /></button>
-            <button type="button" onClick={() => handleDelete(row.id)} className="rounded p-1 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
-          </div>
-        )}
-      />
-      <FormModal open={modalOpen} title={editing ? "Edit Legal Service" : "Add Legal Service"} onClose={() => setModalOpen(false)} onSubmit={handleSubmit}>
+      {loading ? <p className="text-slate-500">Loading...</p> : (
+        <DataTable
+          data={[...items].sort((a, b) => a.order - b.order)}
+          columns={[
+            { key: "order", label: "Order" },
+            { key: "title", label: "Title" },
+            { key: "category", label: "Category" },
+            { key: "status", label: "Status", render: (row) => <StatusBadge status={row.status} /> },
+          ]}
+          actions={(row) => (
+            <div className="flex gap-2">
+              <button type="button" onClick={() => { setEditing(row); setForm({ title: row.title, description: row.description, icon: row.icon, category: row.category, status: row.status, order: row.order }); setModalOpen(true) }} className="rounded p-1 hover:text-orange-600"><Pencil className="h-4 w-4" /></button>
+              <button type="button" onClick={async () => { if (confirm("Delete?")) { await deleteLegalServiceAdmin(row.id); load() } }} className="rounded p-1 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
+            </div>
+          )}
+        />
+      )}
+      <FormModal open={modalOpen} title={editing ? "Edit Legal Service" : "Add Legal Service"} onClose={() => setModalOpen(false)} onSubmit={handleSubmit} submitLabel={saving ? "Saving..." : "Save"}>
         <FormField label="Title" name="title" value={form.title} onChange={(v) => setForm({ ...form, title: v })} required />
         <FormField label="Description" name="description" as="textarea" value={form.description} onChange={(v) => setForm({ ...form, description: v })} required />
         <FormField label="Icon" name="icon" as="select" value={form.icon} onChange={(v) => setForm({ ...form, icon: v })} options={ICON_OPTIONS.map((i) => ({ value: i, label: i }))} />

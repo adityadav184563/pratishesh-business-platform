@@ -2,27 +2,29 @@
 
 import { useEffect, useState } from "react"
 import { Briefcase, MapPin } from "lucide-react"
-import { useAdminDataRefresh, useMounted } from "@/hooks/use-admin-data"
-import { getActiveJobs } from "@/lib/adminData"
+import { useAdminDataRefresh } from "@/hooks/use-admin-data"
+import { fetchActiveJobs } from "@/lib/api-client"
+import type { JobPost } from "@/lib/types/admin"
 
 export default function JobOpenings({ accentColor }: { accentColor: string }) {
-  const mounted = useMounted()
   const tick = useAdminDataRefresh()
-  const [jobs, setJobs] = useState(getActiveJobs())
+  const [jobs, setJobs] = useState<JobPost[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setJobs(getActiveJobs())
-  }, [mounted, tick])
+    fetchActiveJobs()
+      .then(setJobs)
+      .catch(console.error)
+      .finally(() => setLoading(false))
+  }, [tick])
 
-  if (!mounted || jobs.length === 0) return null
+  if (loading || jobs.length === 0) return null
 
   return (
     <section className="py-20">
       <div className="mx-auto max-w-7xl px-6">
         <div className="text-center">
-          <p className={`mb-3 text-sm font-semibold uppercase tracking-widest ${accentColor}`}>
-            Current Openings
-          </p>
+          <p className={`mb-3 text-sm font-semibold uppercase tracking-widest ${accentColor}`}>Current Openings</p>
           <h2 className="text-3xl font-bold text-foreground sm:text-4xl">Available Positions</h2>
         </div>
         <div className="mt-14 space-y-4">

@@ -1,19 +1,20 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useAdminDataRefresh, useMounted } from "@/hooks/use-admin-data"
-import { getSettings } from "@/lib/adminData"
+import { useAdminDataRefresh } from "@/hooks/use-admin-data"
+import { fetchSettings } from "@/lib/api-client"
+import { DEFAULT_SETTINGS } from "@/lib/supabase/mappers"
 import type { SiteSettings } from "@/lib/types/admin"
-import { SEED_SETTINGS } from "@/lib/adminData"
 
 export function useSiteSettings(): SiteSettings {
-  const mounted = useMounted()
   const tick = useAdminDataRefresh()
-  const [settings, setSettings] = useState<SiteSettings>(SEED_SETTINGS)
+  const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS)
 
   useEffect(() => {
-    if (mounted) setSettings(getSettings())
-  }, [mounted, tick])
+    fetchSettings()
+      .then(setSettings)
+      .catch(() => setSettings(DEFAULT_SETTINGS))
+  }, [tick])
 
   return settings
 }

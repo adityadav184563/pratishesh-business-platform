@@ -1,20 +1,14 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
-import { initializeStorage } from "@/lib/adminData"
+import { useEffect, useState } from "react"
 
 export function useAdminDataRefresh(): number {
   const [tick, setTick] = useState(0)
 
   useEffect(() => {
-    initializeStorage()
     const handler = () => setTick((t) => t + 1)
     window.addEventListener("pratishesh-data-updated", handler)
-    window.addEventListener("storage", handler)
-    return () => {
-      window.removeEventListener("pratishesh-data-updated", handler)
-      window.removeEventListener("storage", handler)
-    }
+    return () => window.removeEventListener("pratishesh-data-updated", handler)
   }, [])
 
   return tick
