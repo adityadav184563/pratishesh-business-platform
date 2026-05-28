@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { getSiteSettings, updateSiteSettings } from "@/lib/data/repository"
 import { handleApiError, requireAdmin } from "@/lib/api-utils"
+import { isSupabaseAvailable } from "@/lib/supabase/server"
 
 export async function GET(request: Request) {
   const denied = requireAdmin(request)
@@ -19,7 +20,10 @@ export async function PUT(request: Request) {
   try {
     const body = await request.json()
     const data = await updateSiteSettings(body)
-    return NextResponse.json(data)
+    const response = isSupabaseAvailable()
+      ? data
+      : { ...data, info: "Saved locally. Connect database to publish globally." }
+    return NextResponse.json(response)
   } catch (error) {
     return handleApiError(error)
   }

@@ -14,6 +14,7 @@ export default function AdminSettingsPage() {
   const [form, setForm] = useState<SiteSettings>(DEFAULT_SETTINGS)
   const [loading, setLoading] = useState(true)
   const [saved, setSaved] = useState(false)
+  const [saveInfo, setSaveInfo] = useState("")
   const [saving, setSaving] = useState(false)
 
   const load = useCallback(async () => {
@@ -32,10 +33,19 @@ export default function AdminSettingsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
+    setSaveInfo("")
     try {
-      await updateSettingsAdmin(form)
-      setSaved(true)
-      setTimeout(() => setSaved(false), 3000)
+      const result = await updateSettingsAdmin(form)
+      const info = (result as any)?.info
+      if (typeof info === "string" && info.length > 0) {
+        setSaveInfo(info)
+      } else {
+        setSaved(true)
+      }
+      setTimeout(() => {
+        setSaved(false)
+        setSaveInfo("")
+      }, 3000)
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to save")
     } finally {
@@ -63,7 +73,11 @@ export default function AdminSettingsPage() {
               <Save className="h-4 w-4" />
               {saving ? "Saving..." : "Save Settings"}
             </button>
-            {saved && <span className="text-sm text-emerald-600">Settings saved successfully.</span>}
+            {(saved || saveInfo) && (
+              <span className="text-sm text-emerald-600">
+                {saveInfo || "Settings saved successfully."}
+              </span>
+            )}
           </div>
         </form>
       )}

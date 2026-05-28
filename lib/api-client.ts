@@ -44,9 +44,15 @@ export const fetchActiveJobs = () => request<JobPost[]>("/api/jobs?active=true")
 export const fetchSettings = () => request<SiteSettings>("/api/settings")
 
 export const submitInquiry = (data: Omit<Inquiry, "id" | "status" | "createdAt">) =>
-  request<Inquiry>("/api/inquiries", {
+  request<{ success: true; message: string }>("/api/contact", {
     method: "POST",
-    body: JSON.stringify(data),
+    body: JSON.stringify({
+      fullName: data.name,
+      email: data.email,
+      phone: data.phone,
+      service: data.division,
+      message: data.message,
+    }),
   }).then((r) => {
     notifyDataUpdated()
     return r

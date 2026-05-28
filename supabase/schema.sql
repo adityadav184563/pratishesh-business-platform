@@ -95,11 +95,22 @@ ALTER TABLE inquiries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
 
 -- Public read: active content + settings
+DROP POLICY IF EXISTS "public_read_active_tech" ON tech_services;
 CREATE POLICY "public_read_active_tech" ON tech_services FOR SELECT USING (status = 'active');
+
+DROP POLICY IF EXISTS "public_read_active_legal" ON legal_services;
 CREATE POLICY "public_read_active_legal" ON legal_services FOR SELECT USING (status = 'active');
+
+DROP POLICY IF EXISTS "public_read_active_training" ON training_courses;
 CREATE POLICY "public_read_active_training" ON training_courses FOR SELECT USING (status = 'active');
+
+DROP POLICY IF EXISTS "public_read_active_jobs" ON job_posts;
 CREATE POLICY "public_read_active_jobs" ON job_posts FOR SELECT USING (status = 'active');
+
+DROP POLICY IF EXISTS "public_read_settings" ON site_settings;
 CREATE POLICY "public_read_settings" ON site_settings FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "public_insert_inquiries" ON inquiries;
 CREATE POLICY "public_insert_inquiries" ON inquiries FOR INSERT WITH CHECK (true);
 
 -- Default settings row
